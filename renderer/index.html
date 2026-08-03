@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interview Overlay</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="titlebar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>Interview</span>
+          <span class="mode-pill">LIVE ASSIST</span>
+        </div>
+        <div class="window-actions no-drag">
+          <button id="settingsButton" class="icon-button" title="Settings" aria-label="Settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z"></path>
+              <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"></path>
+            </svg>
+          </button>
+          <button id="minimizeButton" class="icon-button" title="Minimize" aria-label="Minimize">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path></svg>
+          </button>
+          <button id="closeButton" class="icon-button danger" title="Close" aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+          </button>
+        </div>
+      </header>
+
+      <section class="toolbar no-drag">
+        <div class="status-group">
+          <span id="liveDot" class="live-dot"></span>
+          <span id="statusText">Ready</span>
+          <span class="divider"></span>
+          <span id="protectionStatus" class="protection">Share protection: checking</span>
+        </div>
+        <div class="toolbar-actions">
+          <button id="clickThroughButton" class="secondary-button" title="Ctrl+Shift+T">
+            Click-through off
+          </button>
+          <button id="cheatSheetButton" class="secondary-button" title="Open your fixed interview notes">
+            My cheat sheet
+          </button>
+          <button id="startButton" class="primary-button">
+            <span class="button-dot"></span>
+            Start interview
+          </button>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <article class="panel answer-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow accent">YOUR ANSWER</p>
+              <h2 id="intentText">Ready to speak</h2>
+            </div>
+            <div class="answer-status">
+              <button id="forceAnswerButton" class="force-answer-button" type="button" disabled>
+                Generate Answer
+              </button>
+              <span id="responseLatency" class="response-latency hidden"></span>
+              <div id="thinkingIndicator" class="thinking hidden">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="answer-content">
+            <div class="question-context">
+              <div class="question-context-heading">
+                <p class="eyebrow">CURRENT QUESTION</p>
+                <span id="languageBadge" class="language-badge">AUTO</span>
+              </div>
+              <div id="originalText" class="transcript-text empty">
+                Start the interview to capture the other person’s audio.
+              </div>
+            </div>
+            <p id="answerGuidance" class="answer-guidance" aria-live="polite">
+              質問への答え方を短く表示します。
+            </p>
+            <p id="standardAnswer" class="standard-answer empty">
+              A speakable answer will appear here.
+            </p>
+            <button id="shortAnswerToggle" class="text-button">Show short answer</button>
+            <p id="shortAnswer" class="short-answer hidden"></p>
+          </div>
+
+          <div class="cue-area">
+            <p class="eyebrow">PHRASES YOU CAN USE</p>
+            <div id="usefulPhrases" class="phrase-list">
+              <span class="phrase-card muted">Answer phrases will appear here.</span>
+            </div>
+          </div>
+          <p id="cautionText" class="caution-text hidden"></p>
+        </article>
+      </section>
+
+      <footer class="footer-bar no-drag">
+        <span><kbd>Ctrl</kbd><span>+</span><kbd>Shift</kbd><span>+</span><kbd>H</kbd> Hide</span>
+        <span><kbd>Ctrl</kbd><span>+</span><kbd>Shift</kbd><span>+</span><kbd>T</kbd> Toggle click-through</span>
+        <button id="minutesButton" class="footer-button" disabled>Finish & create notes</button>
+      </footer>
+    </main>
+
+    <div id="cheatSheetPanel" class="cheat-sheet hidden no-drag" role="dialog" aria-labelledby="cheatSheetTitle">
+      <div class="cheat-sheet-header">
+        <div>
+          <p class="eyebrow accent">QUICK REFERENCE</p>
+          <h2 id="cheatSheetTitle">My cheat sheet</h2>
+        </div>
+        <button id="closeCheatSheetButton" class="icon-button" aria-label="Close cheat sheet">×</button>
+      </div>
+      <p class="cheat-sheet-help">
+        面接中にいつでも見る固定メモです。AIの回答には自動で混ざりません。
+        自己紹介、実績、転職理由、逆質問などを保存できます。
+      </p>
+      <textarea id="cheatSheetInput" class="cheat-sheet-input" spellcheck="false" placeholder="Self-introduction&#10;Key achievements&#10;Reason for changing jobs&#10;Questions to ask"></textarea>
+      <div class="cheat-sheet-actions">
+        <span id="cheatSheetStatus" class="save-status"></span>
+        <button id="saveCheatSheetButton" class="secondary-button">Save</button>
+      </div>
+    </div>
+
+    <div id="settingsDrawer" class="drawer-backdrop hidden no-drag">
+      <section class="drawer" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <div class="drawer-header">
+          <div>
+            <p class="eyebrow">SETUP</p>
+            <h2 id="settingsTitle">Interview settings</h2>
+          </div>
+          <button id="closeSettingsButton" class="icon-button" aria-label="Close settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+          </button>
+        </div>
+
+        <div class="form-stack">
+          <label class="field">
+            <span>OpenAI API key</span>
+            <input id="apiKeyInput" type="password" autocomplete="off" placeholder="sk-..." />
+            <small id="apiKeyHint">Stored with Windows encryption on this PC.</small>
+          </label>
+
+          <label class="field">
+            <span>Candidate information</span>
+            <textarea
+              id="profileInput"
+              rows="10"
+              placeholder="Paste your resume, job description, expected questions, achievements, company research, and phrases you want to use."
+            ></textarea>
+          </label>
+
+          <label class="file-import">
+            <input id="knowledgeFileInput" type="file" accept=".txt,.md,.csv,.json" multiple />
+            <span>＋ Import text files</span>
+            <small>.txt, .md, .csv, .json</small>
+          </label>
+
+          <label class="field">
+            <span>Answer style</span>
+            <input
+              id="styleInput"
+              type="text"
+              value="Clear, concise, warm, and easy for a non-native English speaker to say."
+            />
+          </label>
+
+          <div class="field-row">
+            <label class="field">
+              <span>Answer model</span>
+              <input id="responseModelInput" type="text" value="gpt-5.6-sol" />
+            </label>
+            <label class="field">
+              <span>Transcription model</span>
+              <input id="transcriptionModelInput" type="text" value="gpt-transcribe" />
+            </label>
+          </div>
+
+          <label class="field">
+            <span>Overlay opacity <output id="opacityValue">92%</output></span>
+            <input id="opacityInput" type="range" min="55" max="100" value="92" />
+          </label>
+
+          <section class="usage-card" aria-labelledby="usageTitle">
+            <div class="usage-card-heading">
+              <div>
+                <span class="field-label" id="usageTitle">API usage from this app</span>
+                <small id="usagePeriod">Tracking starts with this app version.</small>
+              </div>
+              <button id="refreshUsageButton" class="text-button" type="button">Refresh</button>
+            </div>
+            <div class="usage-grid">
+              <div><strong id="usageRequests">0</strong><small>requests</small></div>
+              <div><strong id="usageInputTokens">0</strong><small>input tokens</small></div>
+              <div><strong id="usageOutputTokens">0</strong><small>output tokens</small></div>
+              <div><strong id="usageTranscriptions">0</strong><small>audio windows</small></div>
+            </div>
+            <p id="usageNote" class="usage-note">
+              Exact dollar spend is shown in the OpenAI Usage dashboard. Audio transcription is not included in token totals.
+            </p>
+            <button id="openUsageButton" class="secondary-button usage-dashboard-button" type="button">
+              Open OpenAI Usage dashboard
+            </button>
+          </section>
+        </div>
+
+        <div id="settingsError" class="form-error hidden"></div>
+        <div class="drawer-actions">
+          <button id="testKeyButton" class="secondary-button">Test connection</button>
+          <button id="saveSettingsButton" class="primary-button">Save settings</button>
+        </div>
+        <p class="privacy-note">
+          Live audio is sent in short windows for transcription and is not saved by this app.
+          Confirm that recording and AI assistance are permitted for the meeting.
+        </p>
+      </section>
+    </div>
+
+    <div id="notesModal" class="modal-backdrop hidden no-drag">
+      <section class="notes-modal" role="dialog" aria-modal="true" aria-labelledby="notesTitle">
+        <div class="drawer-header">
+          <div>
+            <p class="eyebrow">SESSION COMPLETE</p>
+            <h2 id="notesTitle">Interview notes</h2>
+          </div>
+          <button id="closeNotesButton" class="icon-button" aria-label="Close notes">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+          </button>
+        </div>
+        <div id="notesLoading" class="notes-loading">Creating notes…</div>
+        <textarea id="notesContent" class="notes-content hidden" spellcheck="false"></textarea>
+        <div id="notesError" class="form-error hidden"></div>
+        <div class="drawer-actions">
+          <button id="resumeButton" class="secondary-button">Back to interview</button>
+          <button id="phraseMemoryButton" class="secondary-button">Export for Phrase Memory</button>
+          <button id="exportNotesButton" class="primary-button" disabled>Export Markdown</button>
+        </div>
+      </section>
+    </div>
+
+    <script src="./transcription-utils.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

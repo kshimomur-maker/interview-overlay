@@ -1,0 +1,64 @@
+{
+  "name": "interview-overlay",
+  "version": "0.2.14",
+  "description": "A Windows 11 answer-first interview assistant with reusable phrase export.",
+  "main": "main.cjs",
+  "author": "Project Tomorrow",
+  "license": "UNLICENSED",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kshimomur-maker/interview-overlay.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test",
+    "check": "node --check main.cjs && node --check preload.cjs && node --check lib/openai-client.cjs && node --check lib/response-utils.cjs && node --check renderer/app.js",
+    "dist:win": "electron-builder --win nsis",
+    "release:win": "electron-builder --win nsis --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "^6.6.2"
+  },
+  "devDependencies": {
+    "electron": "^39.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.projecttomorrow.interviewoverlay",
+    "productName": "Interview Overlay",
+    "asar": true,
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "lib/**/*",
+      "renderer/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "Interview-Overlay-Setup-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Interview Overlay",
+      "deleteAppDataOnUninstall": false
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "releaseType": "release"
+      }
+    ]
+  }
+}

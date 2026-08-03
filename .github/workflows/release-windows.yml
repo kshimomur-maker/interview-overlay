@@ -1,0 +1,45 @@
+name: Release Windows app
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests and syntax checks
+        run: npm run check && npm test
+
+      - name: Build Windows installer
+        run: npm run dist:win
+
+      - name: Publish GitHub release
+        shell: pwsh
+        run: |
+          $version = node -p "require('./package.json').version"
+          $tag = "v$version"
+          gh release view $tag 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Error "Release $tag already exists. Increase the version in package.json before pushing another release."
+            exit 1
+          }
+          gh release create $tag dist/* --title "Interview Overlay $tag" --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

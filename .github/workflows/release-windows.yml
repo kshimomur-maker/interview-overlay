@@ -1,3 +1,149 @@
+
+
+Interview-Overlay-MVP-v0.2.11(1).zip
+Zip アーカイブ
+
+AppsもConnectorsもない
+
+
+
+これでいい？
+
+
+
+Push originって？
+
+
+時間がかかりすぎ。エンジニアに相談して。
+
+
+
+
+やって
+
+1m 1s考えました
+修正版は作成済みです。原因だったPowerShell記述を修正しました。
+
+ただし、GitHubへの直接反映は権限エラー（403）でできませんでした。あなたが行うのは次の2つだけです。
+
+release-windows.yml をダウンロード
+
+GitHub Desktop管理下の同名ファイルを置き換えて、Commit to main → Push origin
+
+Push後、Actionsが自動実行されます。
+
+
+release-windows.yml
+コード
+
+
+今日 3:39
+commit to mainが押せない
+
+Commit to main が押せないのは、GitHub Desktopが変更を検出していないためです。
+
+次を確認してください。
+
+GitHub Desktopの上部で、リポジトリが
+kshimomur-maker/interview-overlay
+になっているか確認
+
+Current repository → Show in Explorer をクリック
+
+開いたフォルダの中で、次を開く
+.github\workflows\release-windows.yml
+
+そのファイルを、ダウンロードした修正版で置き換える
+
+GitHub Desktopに戻る
+
+左側の Changes に release-windows.yml が表示されれば、Commit to main が押せます。
+
+表示されない場合は、GitHub Desktopの画面全体をもう一度送ってください。 "Commit to main" が無効な場合は、押そうとせずそのままで大丈夫です。
+
+
+commit to mainを押せるようにして
+
+1m 23s考えました
+原因は、GitHub Desktopが変更を検出していないことです。GitHub側へ直接修正しようとしましたが、権限エラー（403）でできませんでした。
+
+次の場所だけ直してください。
+
+GitHub Desktop上部の
+Repository → Show in Explorer
+
+開いたフォルダで、以下を開く
+
+.github\workflows\release-windows.yml
+そのファイルを、こちらの修正版で置き換える
+release-windows.yml
+
+GitHub Desktopに戻る
+
+正しく置き換われば、左側のChangesに release-windows.yml が表示され、Commit to main が押せるようになります。
+
+注意：Github\Interview-Overlay-v0.2.14-GitHub-Desktop-ready ではなく、GitHub Desktopの Show in Explorerで開いたフォルダを使ってください。
+
+
+release-windows.yml
+コード
+
+
+
+release-windows.yml
+
+
+name: Release Windows app
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests and syntax checks
+        run: npm run check && npm test
+
+      - name: Build Windows installer
+        run: npm run dist:win
+
+      - name: Read app version
+        id: package
+        shell: pwsh
+        run: |
+          "version=$(node -p \"require('./package.json').version\")" >> $env:GITHUB_OUTPUT
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.package.outputs.version }}
+          name: Interview Overlay v${{ steps.package.outputs.version }}
+          generate_release_notes: true
+          files: dist/*
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+release-windows.yml
+
+
 name: Release Windows app
 
 on:
